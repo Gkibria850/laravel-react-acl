@@ -1,0 +1,31 @@
+ 1-laravel new
+What is the name of your project?:
+2 > laravel-react-acl
+ Which starter kit would you like to install? [None]:
+  [none    ] None
+  [react   ] React
+  [vue     ] Vue
+  [livewire] Livewire
+ > React
+React
+
+
+ 3.Which authentication provider do you prefer? [Laravel's built-in authentication]:
+  [laravel] Laravel's built-in authentication
+  [workos ] WorkOS (Requires WorkOS account)
+ > laravel
+laravel
+
+
+ 4.Which testing framework do you prefer? [Pest]:
+  [0] Pest
+  [1] PHPUnit
+ > 0
+ 5.Would you like to run npm install and npm run build? (yes/no) [yes]:
+ > yes
+6.F:\laragon\www
+λ cd laravel-react-acl
+7.F:\laragon\www\laravel-react-acl
+λ php artisan migrate
+8.F:\laragon\www\laravel-react-acl
+λ php artisan make:controller UserController
