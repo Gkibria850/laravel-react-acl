@@ -2,28 +2,30 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: 'Users Create',
+    title: 'Users Edit',
     href: '/users',
   },
 ];
 
-export default function Create({ roles }) {
-  const { data, setData, errors, post } = useForm({
-    name: '',
-    email: '',
+export default function Edit({
+  user,
+  userRoles,
+  roles,
+}: {
+  user: any;
+  userRoles: string[];
+  roles: string[];
+}) {
+  const { data, setData, errors, put } = useForm({
+    name: user.name || '',
+    email: user.email || '',
     password: '',
-    roles: [],
+    roles: userRoles || [],
   });
 
-  function submit(e) {
-    e.preventDefault();
-    post(route('users.store'));
-  }
-
-  function handleCheckboxChange(roleName, checked) {
+  function handleCheckboxChange(roleName: string, checked: boolean) {
     if (checked) {
       setData('roles', [...data.roles, roleName]);
     } else {
@@ -31,9 +33,14 @@ export default function Create({ roles }) {
     }
   }
 
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    put(route('users.update', user.id));
+  }
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title="Users Create" />
+      <Head title="Users Edit" />
 
       <div className="m-4">
         <Link
@@ -55,7 +62,6 @@ export default function Create({ roles }) {
               <input
                 type="text"
                 id="name"
-                name="name"
                 value={data.name}
                 onChange={(e) => setData('name', e.target.value)}
                 className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm shadow-sm"
@@ -72,7 +78,6 @@ export default function Create({ roles }) {
               <input
                 type="email"
                 id="email"
-                name="email"
                 value={data.email}
                 onChange={(e) => setData('email', e.target.value)}
                 className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm shadow-sm"
@@ -89,7 +94,6 @@ export default function Create({ roles }) {
               <input
                 type="password"
                 id="password"
-                name="password"
                 value={data.password}
                 onChange={(e) => setData('password', e.target.value)}
                 className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm shadow-sm"
@@ -104,29 +108,29 @@ export default function Create({ roles }) {
                 Roles
               </label>
               <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
-                {roles.map((role) => (
-                  <label key={role} className="flex items-center space-x-2">
+                {roles.map((roleName) => (
+                  <label key={roleName} className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      value={role}
-                      onChange={(e) => handleCheckboxChange(role, e.target.checked)}
-                      checked={data.roles.includes(role)}
+                      value={roleName}
+                      onChange={(e) => handleCheckboxChange(roleName, e.target.checked)}
+                      checked={data.roles.includes(roleName)}
                       className="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded"
                     />
-                    <span className="text-gray-800 dark:text-gray-200 text-sm">{role}</span>
+                    <span className="text-gray-800 dark:text-gray-200 text-sm">{roleName}</span>
                   </label>
                 ))}
               </div>
               {errors.roles && <p className="mt-1 text-sm text-red-500">{errors.roles}</p>}
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <div className="pt-2">
               <button
                 type="submit"
                 className="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
               >
-                Submit
+                Update
               </button>
             </div>
           </form>

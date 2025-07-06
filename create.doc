@@ -29,3 +29,221 @@ laravel
 λ php artisan migrate
 8.F:\laragon\www\laravel-react-acl
 λ php artisan make:controller UserController
+
+
+
+https://spatie.be/docs/laravel-permission/v6/introduction
+
+ 1. composer require spatie/laravel-permission
+ 2. php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+ 3. php artisan optimize:clear
+ # or
+ php artisan config:clear
+ 4.php artisan migrate
+ 5.php artisan make:seeder PermissionSeeder
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+
+class PermissionSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+   public function run(): void
+{
+    $permissions = [
+        "users.view",
+        "users.edit",
+        "users.delete",
+        "users.create",
+        "roles.view",
+        "roles.edit",
+        "roles.delete",
+        "roles.create",
+    ];
+
+    // foreach ($permissions as $permission) {
+    //     \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permission]);
+    // }
+    
+    foreach ($permissions as $key=> $value) {
+        Permission::create(['name' => $value]);
+    }
+}
+
+
+}
+
+
+ 7.php artisan db:seed PermissionSeeder
+
+
+
+
+ import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Roles Create',
+    href: '/roles',
+  },
+];
+
+export default function Create({permissions}) {
+  const { data, setData, errors, post } = useForm({
+    name: '',
+    permissions: [
+
+    ]
+
+    
+  });
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    post(route('roles.store'));
+  }
+function handleCheckboxChange(permissionName, Checked){
+    if(Checked){
+        setData("permissions", [...data.permissions, permissionName])
+    }else{
+        setData("permissions", data.permissions.filter(name=> name !== permissionName));
+    }
+}
+  return (
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="Roles Create" />
+
+      <div className="m-4">
+        <Link
+          href={route('roles.index')}
+          className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition"
+        >
+          Back
+        </Link>
+      </div>
+
+      <div className="flex justify-center items-center">
+        <div className="flex flex-col gap-6 rounded-xl p-6 shadow-md bg-white dark:bg-gray-900 w-full max-w-md">
+          <form className="space-y-5" onSubmit={submit}>
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={data.name}
+                onChange={(e) => setData('name', e.target.value)}
+                className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-500 focus:ring-blue-500 sm:text-sm shadow-sm"
+                placeholder="Enter your name"
+              />
+              {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+            </div>
+            {/* Name */}
+            <div>
+              <label htmlFor="permissions" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Permissions:
+              </label>
+              {permissions.map((permission) =>
+              <label key={permission} className='flex items-center space-x-2'>
+                <input
+                type="checkbox"
+                value={permission}
+                 onChange={(e) => handleCheckboxChange(permission, e.target.checked)}
+                id={permission}
+                className='form-checkbox h-5 w-5 text-blue-500 rounded focus:ring-2'/>
+                <span className='text-gray-800 capitalize'>{permission}</span>
+              </label>
+               )}
+              {errors.permissions && <p className="mt-1 text-sm text-red-500">{errors.permissions}</p>}
+            
+            </div>
+
+          
+
+            {/* Submit Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
+
+https://spatie.be/docs/laravel-permission/v6/basic-usage/blade-directives
+go=>Middleware=>HandleInertiaRequests =>( 'permissions' => fn () => $request->user()?->getAllPermission()->pluck("name") ?? []) 
+public function share(Request $request): array
+    {
+        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+
+        return [
+            ...parent::share($request),
+            'name' => config('app.name'),
+            'quote' => ['message' => trim($message), 'author' => trim($author)],
+            'auth' => [
+                'user' => $request->user(),
+                'permissions' => fn () => $request->user()?->getAllPermissions()->pluck('name') ?? [],
+            ],
+
+            'ziggy' => fn (): array => [
+                ...(new Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
+            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+        ];
+    }
+components=>lib=>can.tsx
+
+bootstrap=>app=>
+<?php
+
+use App\Http\Middleware\HandleAppearance;
+use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+         $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+        $middleware->web(append: [
+            HandleAppearance::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+
+
+
+
